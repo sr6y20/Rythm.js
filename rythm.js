@@ -7,6 +7,13 @@
 })(this, function() {
   'use strict'
 
+  var Global = {
+    myCanvas: null,
+    topColor: '#f6d365,#fda085',
+    bottomColor: '#fddb92,#d1fdff',
+    fftSize: 2048,
+  }
+
   var classCallCheck = function(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
       throw new TypeError('Cannot call a class as a function')
@@ -38,7 +45,7 @@
 
     this.initialise = function(analyser) {
       _this.analyser = analyser
-      _this.analyser.fftSize = 2048
+      _this.analyser.fftSize = Global.fftSize
     }
 
     this.reset = function() {
@@ -56,6 +63,70 @@
           _this.hzHistory[i].shift()
         }
         _this.hzHistory[i].push(_this.frequences[i])
+      }
+
+      var myCanvas = Global.myCanvas
+      if (myCanvas) {
+        var canvasCtx = myCanvas.getContext('2d')
+        var cW = myCanvas.width
+        var cH = myCanvas.height
+
+        var basicWidth = (Math.round(cW / _this.analyser.fftSize * 10) + 1) / 10
+        var basicHeight = 1
+
+        var color1 = canvasCtx.createLinearGradient(
+          cW / 2,
+          cH / 2 - 10,
+          cW / 2,
+          cH / 2 - 150
+        )
+        var topColor = Global.topColor.split(',')
+        color1.addColorStop(0, topColor[0])
+        color1.addColorStop(1, topColor[1])
+
+        var color2 = canvasCtx.createLinearGradient(
+          cW / 2,
+          cH / 2 + 10,
+          cW / 2,
+          cH / 2 + 150
+        )
+        var bottomColor = Global.bottomColor.split(',')
+        color2.addColorStop(0, bottomColor[0])
+        color2.addColorStop(1, bottomColor[1])
+
+        canvasCtx.clearRect(0, 0, cW, cH)
+
+        for (var _i = 0; _i < _this.frequences.length; _i++) {
+          var barHeight = _this.frequences[_i]
+
+          canvasCtx.fillStyle = color1
+          canvasCtx.fillRect(
+            cW / 2 + _i * basicWidth,
+            cH / 2,
+            basicWidth,
+            -barHeight * basicHeight * 1.1
+          )
+          canvasCtx.fillRect(
+            cW / 2 - _i * basicWidth,
+            cH / 2,
+            basicWidth,
+            -barHeight * basicHeight * 1.1
+          )
+
+          canvasCtx.fillStyle = color2
+          canvasCtx.fillRect(
+            cW / 2 + _i * basicWidth,
+            cH / 2,
+            basicWidth,
+            barHeight * basicHeight * 0.8
+          )
+          canvasCtx.fillRect(
+            cW / 2 - _i * basicWidth,
+            cH / 2,
+            basicWidth,
+            barHeight * basicHeight * 0.8
+          )
+        }
       }
     }
 
@@ -135,6 +206,35 @@
       _this.currentInputType = _this.inputTypeList['TRACK']
       _this.source = _this.createSourceFromAudioElement(_this.audio)
       _this.connectSource(_this.source)
+    }
+
+    this.setCanvas = function(canvas) {
+      Global.myCanvas = canvas
+    }
+
+    this.setTopColor = function(color) {
+      Global.topColor = color
+    }
+
+    this.setBottomColor = function(color) {
+      Global.bottomColor = color
+    }
+
+    this.setFFTSize = function(fftSize) {
+      global.fftSize = fftSize
+    }
+
+    this.end = function() {
+      return new Promise(function(resolve, reject) {
+        _this.audio.onerror = function() {
+          reject(new Error('音频加载失败'))
+        }
+
+        _this.audio.onended = function() {
+          resolve()
+          _this.stop()
+        }
+      })
     }
 
     this.setGain = function(value) {
@@ -427,6 +527,29 @@
     elem.style.boxShadow = ''
   }
 
+  var neon2 = function(elem, value) {
+    var options =
+      arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {}
+
+    var from = options.from || [0, 0, 0]
+    var to = options.to || [255, 255, 255]
+    var scaleR = (to[0] - from[0]) * value
+    var scaleG = (to[1] - from[1]) * value
+    var scaleB = (to[2] - from[2]) * value
+    elem.style.filter =
+      'drop-shadow(0 0 0.75rem rgb(' +
+      Math.floor(to[0] - scaleR) +
+      ', ' +
+      Math.floor(to[1] - scaleG) +
+      ', ' +
+      Math.floor(to[2] - scaleB) +
+      '))'
+  }
+
+  var reset$11 = function reset(elem) {
+    elem.style.filter = ''
+  }
+
   var kern = function(elem, value) {
     var options =
       arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {}
@@ -442,7 +565,7 @@
     elem.style.letterSpacing = kern + 'px'
   }
 
-  var reset$11 = function reset(elem) {
+  var reset$12 = function reset(elem) {
     elem.style.letterSpacing = ''
   }
 
@@ -456,7 +579,7 @@
     elem.style.fontSize = fontSize + 'em'
   }
 
-  var reset$12 = function reset(elem) {
+  var reset$13 = function reset(elem) {
     elem.style.fontSize = '1em'
   }
 
@@ -470,7 +593,7 @@
     elem.style.borderWidth = borderWidth + 'px'
   }
 
-  var reset$13 = function reset(elem) {
+  var reset$14 = function reset(elem) {
     elem.style.borderWidth = ''
   }
 
@@ -487,7 +610,7 @@
     elem.style.transform = 'matrix(1, ' + Math.sin(rotate3d) + ', 0, 1 , 0 ,0)'
   }
 
-  var reset$14 = function reset(elem) {
+  var reset$15 = function reset(elem) {
     elem.style.transform = ''
   }
 
@@ -510,7 +633,7 @@
       ')'
   }
 
-  var reset$15 = function reset(elem) {
+  var reset$16 = function reset(elem) {
     elem.style.color = ''
   }
 
@@ -532,11 +655,12 @@
       this.registerDance('blur', blur, reset$8)
       this.registerDance('swing', swing, reset$9)
       this.registerDance('neon', neon, reset$10)
-      this.registerDance('kern', kern, reset$11)
-      this.registerDance('borderWidth', borderWidth, reset$13)
-      this.registerDance('fontSize', fontSize, reset$12)
-      this.registerDance('tilt', tilt, reset$14)
-      this.registerDance('fontColor', fontColor, reset$15)
+      this.registerDance('neon2', neon2, reset$11)
+      this.registerDance('kern', kern, reset$12)
+      this.registerDance('borderWidth', borderWidth, reset$14)
+      this.registerDance('fontSize', fontSize, reset$13)
+      this.registerDance('tilt', tilt, reset$15)
+      this.registerDance('fontColor', fontColor, reset$16)
     }
 
     createClass(Dancer, [
@@ -611,6 +735,26 @@
 
     this.setGain = function(value) {
       return _this.player.setGain(value)
+    }
+
+    this.setCanvas = function(canvas) {
+      return _this.player.setCanvas(canvas)
+    }
+
+    this.setTopColor = function(color) {
+      return _this.player.setTopColor(color)
+    }
+
+    this.setBottomColor = function(color) {
+      return _this.player.setBottomColor(color)
+    }
+
+    this.setFFTSize = function(fftSize) {
+      return _this.player.setFFTSize(fftSize)
+    }
+
+    this.end = function() {
+      return _this.player.end()
     }
 
     this.connectSource = function(source) {

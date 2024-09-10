@@ -1,4 +1,5 @@
 import Analyser from './Analyser.js'
+import Global from './config/global.js'
 
 class Player {
   constructor(forceAudioContext) {
@@ -54,6 +55,35 @@ class Player {
     this.connectSource(this.source)
   }
 
+  setCanvas = canvas => {
+    Global.myCanvas = canvas
+  }
+
+  setTopColor = color => {
+    Global.topColor = color
+  }
+
+  setBottomColor = color => {
+    Global.bottomColor = color
+  }
+
+  setFFTSize = fftSize => {
+    global.fftSize = fftSize
+  }
+
+  end = () => {
+    return new Promise((resolve, reject) => {
+      this.audio.onerror = () => {
+        reject(new Error('音频加载失败'))
+      }
+
+      this.audio.onended = () => {
+        resolve()
+        this.stop()
+      }
+    })
+  }
+
   setGain = value => {
     this.gain.gain.value = value
   }
@@ -85,8 +115,7 @@ class Player {
   start = () => {
     if (this.currentInputType === this.inputTypeList['TRACK']) {
       if (this.audioCtx.state === 'suspended') {
-        this.audioCtx.resume()
-          .then(() => this.audio.play())
+        this.audioCtx.resume().then(() => this.audio.play())
       } else {
         this.audio.play()
       }

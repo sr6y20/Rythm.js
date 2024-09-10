@@ -11,6 +11,7 @@ import radius, { reset as radiusReset } from './dances/radius.js'
 import blur, { reset as blurReset } from './dances/blur.js'
 import swing, { reset as swingReset } from './dances/swing.js'
 import neon, { reset as neonReset } from './dances/neon.js'
+import neon2, { reset as neon2Reset } from './dances/neon2.js'
 import kern, { reset as kernReset } from './dances/kern.js'
 import fontSize, { reset as fontSizeReset } from './dances/font-size.js'
 import borderWidth, {
@@ -35,6 +36,7 @@ class Dancer {
     this.registerDance('blur', blur, blurReset)
     this.registerDance('swing', swing, swingReset)
     this.registerDance('neon', neon, neonReset)
+    this.registerDance('neon2', neon2, neon2Reset)
     this.registerDance('kern', kern, kernReset)
     this.registerDance('borderWidth', borderWidth, borderWidthReset)
     this.registerDance('fontSize', fontSize, fontSizeReset)

@@ -1,3 +1,5 @@
+import Global from './config/global'
+
 class Analyser {
   constructor() {
     this.startingScale = 0
@@ -8,7 +10,7 @@ class Analyser {
 
   initialise = analyser => {
     this.analyser = analyser
-    this.analyser.fftSize = 2048
+    this.analyser.fftSize = Global.fftSize
   }
 
   reset = () => {
@@ -26,6 +28,70 @@ class Analyser {
         this.hzHistory[i].shift()
       }
       this.hzHistory[i].push(this.frequences[i])
+    }
+
+    const myCanvas = Global.myCanvas
+    if (myCanvas) {
+      const canvasCtx = myCanvas.getContext('2d')
+      const cW = myCanvas.width
+      const cH = myCanvas.height
+
+      const basicWidth = (Math.round(cW / this.analyser.fftSize * 10) + 1) / 10
+      const basicHeight = 1
+
+      const color1 = canvasCtx.createLinearGradient(
+        cW / 2,
+        cH / 2 - 10,
+        cW / 2,
+        cH / 2 - 150
+      )
+      const topColor = Global.topColor.split(',')
+      color1.addColorStop(0, topColor[0])
+      color1.addColorStop(1, topColor[1])
+
+      const color2 = canvasCtx.createLinearGradient(
+        cW / 2,
+        cH / 2 + 10,
+        cW / 2,
+        cH / 2 + 150
+      )
+      const bottomColor = Global.bottomColor.split(',')
+      color2.addColorStop(0, bottomColor[0])
+      color2.addColorStop(1, bottomColor[1])
+
+      canvasCtx.clearRect(0, 0, cW, cH)
+
+      for (let i = 0; i < this.frequences.length; i++) {
+        const barHeight = this.frequences[i]
+
+        canvasCtx.fillStyle = color1
+        canvasCtx.fillRect(
+          cW / 2 + i * basicWidth,
+          cH / 2,
+          basicWidth,
+          -barHeight * basicHeight * 1.1
+        )
+        canvasCtx.fillRect(
+          cW / 2 - i * basicWidth,
+          cH / 2,
+          basicWidth,
+          -barHeight * basicHeight * 1.1
+        )
+
+        canvasCtx.fillStyle = color2
+        canvasCtx.fillRect(
+          cW / 2 + i * basicWidth,
+          cH / 2,
+          basicWidth,
+          barHeight * basicHeight * 0.8
+        )
+        canvasCtx.fillRect(
+          cW / 2 - i * basicWidth,
+          cH / 2,
+          basicWidth,
+          barHeight * basicHeight * 0.8
+        )
+      }
     }
   }
 

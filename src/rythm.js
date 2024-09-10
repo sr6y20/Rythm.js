@@ -24,6 +24,16 @@ export default class Rythm {
 
   setGain = value => this.player.setGain(value)
 
+  setCanvas = canvas => this.player.setCanvas(canvas)
+
+  setTopColor = color => this.player.setTopColor(color)
+
+  setBottomColor = color => this.player.setBottomColor(color)
+
+  setFFTSize = fftSize => this.player.setFFTSize(fftSize)
+
+  end = () => this.player.end()
+
   connectSource = source => this.player.connectSource(source)
 
   addRythm = (elementClass, type, startValue, nbValue, options) => {
